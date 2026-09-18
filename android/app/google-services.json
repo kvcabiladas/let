@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "404491804324",
+    "project_id": "lets-94d73",
+    "storage_bucket": "lets-94d73.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:404491804324:android:5d7854ee60186822009031",
+        "android_client_info": {
+          "package_name": "com.example.topnotcher_yarn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "404491804324-h6mbd4saofeneg9l27o4gbu8uso2lg7n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj2pI5eRk78IlNM6WBmUIsDU0-nX3Dxd0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "404491804324-h6mbd4saofeneg9l27o4gbu8uso2lg7n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "404491804324-i1vhed1b60b3m4pkj04cpdro1jubeofo.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.topnotcherYarn"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,4 @@
-package com.example.koniks
+package com.example.topnotcher_yarn
 
 import io.flutter.embedding.android.FlutterActivity
 

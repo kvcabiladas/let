@@ -4,6 +4,7 @@ import '../data/questions_repository.dart';
 import '../models/question.dart';
 import '../models/quiz_session.dart';
 import '../models/quiz_subject.dart';
+import 'firestore_sync_service.dart';
 
 class SavedSessionData {
   final String subjectId;
@@ -46,16 +47,31 @@ class StorageService {
     return '$_keyCompletedSessionPrefix${subjectId}_sec_$sectionId';
   }
 
-  static Future<void> saveSectionScore(String subjectId, int sectionId, int score, int total) async {
+  /// Sync all data from/to Cloud Firestore
+  static Future<void> syncWithCloud() async {
+    await FirestoreSyncService.syncAllData();
+  }
+
+  /// Clear all local scores and saved sessions (e.g. on sign out if switching user)
+  static Future<void> clearAllLocalData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
+  static Future<void> saveSectionScore(
+      String subjectId, int sectionId, int score, int total) async {
     final prefs = await SharedPreferences.getInstance();
     final key = _scoreKey(subjectId, sectionId);
     final currentBest = prefs.getInt(key) ?? 0;
     if (score > currentBest) {
       await prefs.setInt(key, score);
+      // Trigger cloud sync
+      FirestoreSyncService.syncBestScore(subjectId, sectionId, score);
     }
   }
 
-  static Future<int> getSectionBestScore(String subjectId, int sectionId) async {
+  static Future<int> getSectionBestScore(
+      String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
     final key = _scoreKey(subjectId, sectionId);
     if (prefs.containsKey(key)) {
@@ -68,14 +84,16 @@ class StorageService {
     return 0;
   }
 
-  static Future<Map<int, int>> getAllBestScores(String subjectId, int totalSections) async {
+  static Future<Map<int, int>> getAllBestScores(
+      String subjectId, int totalSections) async {
     final prefs = await SharedPreferences.getInstance();
     final Map<int, int> scores = {};
     for (int i = 1; i <= totalSections; i++) {
       final key = _scoreKey(subjectId, i);
       if (prefs.containsKey(key)) {
         scores[i] = prefs.getInt(key) ?? 0;
-      } else if (subjectId == 'gen_ed' && prefs.containsKey('best_score_sec_$i')) {
+      } else if (subjectId == 'gen_ed' &&
+          prefs.containsKey('best_score_sec_$i')) {
         scores[i] = prefs.getInt('best_score_sec_$i') ?? 0;
       } else {
         scores[i] = 0;
@@ -87,6 +105,7 @@ class StorageService {
   static Future<void> saveLastMode(QuizMode mode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyLastMode, mode.name);
+    FirestoreSyncService.syncSettings(lastQuizMode: mode.name);
   }
 
   static Future<QuizMode> getLastMode() async {
@@ -101,6 +120,7 @@ class StorageService {
   static Future<void> saveRandomizeSetting(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyRandomize, value);
+    FirestoreSyncService.syncSettings(randomize: value);
   }
 
   static Future<bool> getRandomizeSetting() async {
@@ -115,31 +135,43 @@ class StorageService {
       'subjectId': session.subjectId,
       'sectionId': session.sectionId,
       'currentIndex': session.currentIndex,
-      'userAnswers': session.userAnswers.map((k, v) => MapEntry(k.toString(), v)),
+      'userAnswers':
+          session.userAnswers.map((k, v) => MapEntry(k.toString(), v)),
       'bookmarkedIndices': session.bookmarkedIndices.toList(),
       'elapsedSeconds': session.elapsedSeconds,
       'mode': session.mode.name,
       'questionIds': session.questions.map((q) => q.id).toList(),
+      'updatedAt': DateTime.now().toIso8601String(),
     };
-    await prefs.setString(_sessionKey(session.subjectId, session.sectionId), jsonEncode(data));
+    await prefs.setString(
+        _sessionKey(session.subjectId, session.sectionId), jsonEncode(data));
+    FirestoreSyncService.syncSessionProgress(
+        session.subjectId, session.sectionId, data);
   }
 
   static Future<bool> hasSavedProgress(String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
     final key = _sessionKey(subjectId, sectionId);
-    if (prefs.containsKey(key)) return true;
-    if (subjectId == 'gen_ed' && prefs.containsKey('saved_session_sec_$sectionId')) return true;
+    if (prefs.containsKey(key)) {
+      return true;
+    }
+    if (subjectId == 'gen_ed' &&
+        prefs.containsKey('saved_session_sec_$sectionId')) {
+      return true;
+    }
     return false;
   }
 
-  static Future<Map<int, bool>> getAllSavedProgressStatus(String subjectId, int totalSections) async {
+  static Future<Map<int, bool>> getAllSavedProgressStatus(
+      String subjectId, int totalSections) async {
     final prefs = await SharedPreferences.getInstance();
     final Map<int, bool> status = {};
     for (int i = 1; i <= totalSections; i++) {
       final key = _sessionKey(subjectId, i);
       if (prefs.containsKey(key)) {
         status[i] = true;
-      } else if (subjectId == 'gen_ed' && prefs.containsKey('saved_session_sec_$i')) {
+      } else if (subjectId == 'gen_ed' &&
+          prefs.containsKey('saved_session_sec_$i')) {
         status[i] = true;
       } else {
         status[i] = false;
@@ -148,7 +180,8 @@ class StorageService {
     return status;
   }
 
-  static Future<SavedSessionData?> loadSavedProgress(String subjectId, int sectionId) async {
+  static Future<SavedSessionData?> loadSavedProgress(
+      String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
     String? jsonStr = prefs.getString(_sessionKey(subjectId, sectionId));
     if (jsonStr == null && subjectId == 'gen_ed') {
@@ -159,9 +192,12 @@ class StorageService {
     try {
       final Map<String, dynamic> data = jsonDecode(jsonStr);
       final rawAnswers = data['userAnswers'] as Map<String, dynamic>;
-      final userAnswers = rawAnswers.map((k, v) => MapEntry(int.parse(k), v as int));
-      final bookmarkedIndices = (data['bookmarkedIndices'] as List).map((e) => e as int).toSet();
-      final questionIds = (data['questionIds'] as List).map((e) => e as int).toList();
+      final userAnswers =
+          rawAnswers.map((k, v) => MapEntry(int.parse(k), v as int));
+      final bookmarkedIndices =
+          (data['bookmarkedIndices'] as List).map((e) => e as int).toSet();
+      final questionIds =
+          (data['questionIds'] as List).map((e) => e as int).toList();
       final modeStr = data['mode'] as String;
       final mode = modeStr == QuizMode.instantCheck.name
           ? QuizMode.instantCheck
@@ -182,12 +218,14 @@ class StorageService {
     }
   }
 
-  static Future<void> clearSavedProgress(String subjectId, int sectionId) async {
+  static Future<void> clearSavedProgress(
+      String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_sessionKey(subjectId, sectionId));
     if (subjectId == 'gen_ed') {
       await prefs.remove('saved_session_sec_$sectionId');
     }
+    FirestoreSyncService.syncClearSavedProgress(subjectId, sectionId);
   }
 
   // Completed Session Persistence
@@ -198,7 +236,8 @@ class StorageService {
       'sectionId': session.sectionId,
       'sectionTitle': session.sectionTitle,
       'currentIndex': session.currentIndex,
-      'userAnswers': session.userAnswers.map((k, v) => MapEntry(k.toString(), v)),
+      'userAnswers':
+          session.userAnswers.map((k, v) => MapEntry(k.toString(), v)),
       'bookmarkedIndices': session.bookmarkedIndices.toList(),
       'elapsedSeconds': session.elapsedSeconds,
       'mode': session.mode.name,
@@ -206,25 +245,36 @@ class StorageService {
       'isSubmitted': true,
       'completedAt': DateTime.now().toIso8601String(),
     };
-    await prefs.setString(_completedSessionKey(session.subjectId, session.sectionId), jsonEncode(data));
+    await prefs.setString(_completedSessionKey(session.subjectId, session.sectionId),
+        jsonEncode(data));
+    FirestoreSyncService.syncCompletedSession(
+        session.subjectId, session.sectionId, data);
   }
 
-  static Future<bool> hasCompletedSession(String subjectId, int sectionId) async {
+  static Future<bool> hasCompletedSession(
+      String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
     final key = _completedSessionKey(subjectId, sectionId);
-    if (prefs.containsKey(key)) return true;
-    if (subjectId == 'gen_ed' && prefs.containsKey('completed_session_sec_$sectionId')) return true;
+    if (prefs.containsKey(key)) {
+      return true;
+    }
+    if (subjectId == 'gen_ed' &&
+        prefs.containsKey('completed_session_sec_$sectionId')) {
+      return true;
+    }
     return false;
   }
 
-  static Future<Map<int, bool>> getAllCompletedSessionStatus(String subjectId, int totalSections) async {
+  static Future<Map<int, bool>> getAllCompletedSessionStatus(
+      String subjectId, int totalSections) async {
     final prefs = await SharedPreferences.getInstance();
     final Map<int, bool> status = {};
     for (int i = 1; i <= totalSections; i++) {
       final key = _completedSessionKey(subjectId, i);
       if (prefs.containsKey(key)) {
         status[i] = true;
-      } else if (subjectId == 'gen_ed' && prefs.containsKey('completed_session_sec_$i')) {
+      } else if (subjectId == 'gen_ed' &&
+          prefs.containsKey('completed_session_sec_$i')) {
         status[i] = true;
       } else {
         status[i] = false;
@@ -233,9 +283,11 @@ class StorageService {
     return status;
   }
 
-  static Future<QuizSession?> loadCompletedSession(String subjectId, int sectionId) async {
+  static Future<QuizSession?> loadCompletedSession(
+      String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
-    String? jsonStr = prefs.getString(_completedSessionKey(subjectId, sectionId));
+    String? jsonStr =
+        prefs.getString(_completedSessionKey(subjectId, sectionId));
     if (jsonStr == null && subjectId == 'gen_ed') {
       jsonStr = prefs.getString('completed_session_sec_$sectionId');
     }
@@ -244,16 +296,20 @@ class StorageService {
     try {
       final Map<String, dynamic> data = jsonDecode(jsonStr);
       final rawAnswers = data['userAnswers'] as Map<String, dynamic>;
-      final userAnswers = rawAnswers.map((k, v) => MapEntry(int.parse(k), v as int));
-      final bookmarkedIndices = (data['bookmarkedIndices'] as List).map((e) => e as int).toSet();
-      final questionIds = (data['questionIds'] as List).map((e) => e as int).toList();
+      final userAnswers =
+          rawAnswers.map((k, v) => MapEntry(int.parse(k), v as int));
+      final bookmarkedIndices =
+          (data['bookmarkedIndices'] as List).map((e) => e as int).toSet();
+      final questionIds =
+          (data['questionIds'] as List).map((e) => e as int).toList();
       final modeStr = data['mode'] as String;
       final mode = modeStr == QuizMode.instantCheck.name
           ? QuizMode.instantCheck
           : QuizMode.checkAtEnd;
 
       final subject = QuizSubject.getById(subjectId);
-      final allQuestions = QuestionsRepository.getQuestionsForSection(subjectId, sectionId);
+      final allQuestions =
+          QuestionsRepository.getQuestionsForSection(subjectId, sectionId);
       final questionMap = {for (var q in allQuestions) q.id: q};
       final orderedQuestions = questionIds
           .map((id) => questionMap[id])
@@ -265,7 +321,8 @@ class StorageService {
       return QuizSession(
         subjectId: (data['subjectId'] as String?) ?? subjectId,
         sectionId: data['sectionId'] as int,
-        sectionTitle: (data['sectionTitle'] as String?) ?? '${subject.subtitle} • Section $sectionId',
+        sectionTitle: (data['sectionTitle'] as String?) ??
+            '${subject.subtitle} • Section $sectionId',
         mode: mode,
         questions: orderedQuestions,
         currentIndex: (data['currentIndex'] as int?) ?? 0,
@@ -279,11 +336,13 @@ class StorageService {
     }
   }
 
-  static Future<void> clearCompletedSession(String subjectId, int sectionId) async {
+  static Future<void> clearCompletedSession(
+      String subjectId, int sectionId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_completedSessionKey(subjectId, sectionId));
     if (subjectId == 'gen_ed') {
       await prefs.remove('completed_session_sec_$sectionId');
     }
+    FirestoreSyncService.syncClearCompletedSession(subjectId, sectionId);
   }
 }

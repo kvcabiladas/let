@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/quiz_session.dart';
 import '../models/quiz_subject.dart';
 import '../theme/app_theme.dart';
+import '../services/firestore_sync_service.dart';
 import '../services/storage_service.dart';
 import 'quiz_screen.dart';
 import 'results_screen.dart';
@@ -27,7 +28,20 @@ class _SubjectSectionsScreenState extends State<SubjectSectionsScreen> {
   @override
   void initState() {
     super.initState();
+    FirestoreSyncService.syncNotifier.addListener(_onCloudSyncUpdate);
     _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    FirestoreSyncService.syncNotifier.removeListener(_onCloudSyncUpdate);
+    super.dispose();
+  }
+
+  void _onCloudSyncUpdate() {
+    if (mounted) {
+      _loadSettings();
+    }
   }
 
   Future<void> _loadSettings() async {

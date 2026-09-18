@@ -27,7 +27,7 @@ const List<Question> genEdQaSection1Questions = [
   ),
   Question(
     id: 5,
-    questionText: "I can't find my calculator; may I use ____ Miguel?",
+    questionText: 'I can\'t find my calculator; may I use ____ Miguel?',
     options: ['His', 'Yours', 'My', 'Mine'],
     correctAnswerIndex: 1,
   ),
@@ -51,7 +51,7 @@ const List<Question> genEdQaSection1Questions = [
   ),
   Question(
     id: 9,
-    questionText: "Filipino migrant writer whose fiction stories reflect the Filipino's concept of American culture?",
+    questionText: 'Filipino migrant writer whose fiction stories reflect the Filipino\'s concept of American culture?',
     options: ['Bienvenido Santos', 'Ambeth Ocampo', 'Carlos Bulosan', 'Jose Garcia Villa'],
     correctAnswerIndex: 0,
   ),
@@ -64,7 +64,7 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 11,
     questionText: 'What are the greatest lyric poems in the literature of the world?',
-    options: ['The Psalms of Praises', "Shakespeare's Sonnets", 'Odes of John Keats', 'The Psalms of King David'],
+    options: ['The Psalms of Praises', 'Shakespeare\'s Sonnets', 'Odes of John Keats', 'The Psalms of King David'],
     correctAnswerIndex: 3,
   ),
   Question(
@@ -100,13 +100,13 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 17,
     questionText: 'Your findings are impertinent to the results of this investigation. Select the word which means the same as the underlined word.',
-    options: ['Irrelevant', 'Important', 'Meaningless', 'Relevant'],
+    options: ['Irrelevant', 'Important', 'Meaningless'],
     correctAnswerIndex: 0,
   ),
   Question(
     id: 18,
     questionText: 'Several elements must be transmuted to see the real implications of this event. Select the word which means the same as the underlined word.',
-    options: ['Changed', 'Summed', 'Altered', 'Transformed'],
+    options: ['Changed', 'Summed', 'Altered'],
     correctAnswerIndex: 0,
   ),
   Question(
@@ -118,7 +118,7 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 20,
     questionText: 'The President showed great aplomb while dealing with the reporters. Select the word which means the same as the underlined word.',
-    options: ['Composure', 'Nervousness', 'Confidence', 'Poise'],
+    options: ['Composure', 'Nervousness', 'Confidence'],
     correctAnswerIndex: 0,
   ),
   Question(
@@ -196,12 +196,7 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 33,
     questionText: 'One famous Japanese poem is known as haiku. It consists of:',
-    options: [
-      'Three unrhymed lines of 5-7-5 syllables',
-      'Four lines that rhyme with love as topic',
-      'Three lines totaling 17 syllables with nature as topic',
-      'A short verse with a seasonal reference',
-    ],
+    options: ['Three unrhymed lines of 5-7-5 syllables', 'Four lines that rhyme with love as topic', 'Three lines totaling 17 syllables with nature as topic', 'A short verse with a seasonal reference'],
     correctAnswerIndex: 2,
   ),
   Question(
@@ -219,7 +214,7 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 36,
     questionText: 'Analects, which are short and witty sayings that treat moral values and good human relations, are attributed to this Chinese writer:',
-    options: ['Confucius', 'Lao-Tzu', 'Mencius', 'Sun Tzu'],
+    options: ['Confucius', 'Lao-Tzu', 'Mencius'],
     correctAnswerIndex: 0,
   ),
   Question(
@@ -230,8 +225,8 @@ const List<Question> genEdQaSection1Questions = [
   ),
   Question(
     id: 38,
-    questionText: "This person is the world's first mythical geographer, recognized due to his vivid descriptions of lands and people encountered by his hero Ulysses.",
-    options: ['Virgil', 'Homer', 'Herodotus', 'Sophocles'],
+    questionText: 'This person is the world\'s first mythical geographer, recognized due to his vivid descriptions of lands and people encountered by his hero Ulysses.',
+    options: ['Virgil', 'Homer', 'Herodotus'],
     correctAnswerIndex: 1,
   ),
   Question(
@@ -243,7 +238,7 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 40,
     questionText: 'Before migrants crossed the seas from the southern Philippines, there were already aboriginal settlers in the islands. Who were these?',
-    options: ['Indonesians', 'Malayans', 'Negritos', 'Aetas'],
+    options: ['Indonesians', 'Malayans', 'Negritos'],
     correctAnswerIndex: 2,
   ),
   Question(
@@ -261,12 +256,7 @@ const List<Question> genEdQaSection1Questions = [
   Question(
     id: 43,
     questionText: 'In July 1901, Isabelo delos Reyes founded the first labour union in the country. What was its name?',
-    options: [
-      'Liga Obrera Filipina',
-      'Union Trabajadores de Filipinos',
-      'Katipunan ng mga Anak-Pawis',
-      'Union Obrero Democratica',
-    ],
+    options: ['Liga Obrera Filipina', 'Union Trabajadores de Filipinos', 'Katipunan ng mga Anak-Pawis', 'Union Obrero Democratica'],
     correctAnswerIndex: 3,
   ),
   Question(
@@ -301,7 +291,7 @@ const List<Question> genEdQaSection1Questions = [
   ),
   Question(
     id: 49,
-    questionText: "The following were among the five ships involved in Ferdinand Magellan's voyage, except:",
+    questionText: 'The following were among the five ships involved in Ferdinand Magellan\'s voyage, except:',
     options: ['Trinidad', 'Cartagena', 'Victoria', 'Santiago'],
     correctAnswerIndex: 1,
   ),

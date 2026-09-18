@@ -1,6 +1,6 @@
-# koniks
+# Topnotcher Yarn
 
-A new Flutter project.
+LET Practice Drills and Reviewer application.
 
 ## Getting Started
 

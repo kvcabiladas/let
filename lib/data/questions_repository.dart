@@ -101,6 +101,25 @@ import 'bped_health_anatomy/bped_health_anatomy_section_1.dart';
 import 'bped_health_anatomy/bped_health_anatomy_section_2.dart';
 import 'prof_ed_1000/prof_ed_1000_section_20.dart';
 import 'gen_ed_qa/gen_ed_qa_section_1.dart';
+import 'gen_ed_qa/gen_ed_qa_section_2.dart';
+import 'gen_ed_qa/gen_ed_qa_section_3.dart';
+import 'gen_ed_qa/gen_ed_qa_section_4.dart';
+import 'gen_ed_qa/gen_ed_qa_section_5.dart';
+import 'gen_ed_qa/gen_ed_qa_section_6.dart';
+import 'gen_ed_qa/gen_ed_qa_section_7.dart';
+import 'gen_ed_qa/gen_ed_qa_section_8.dart';
+import 'gen_ed_qa/gen_ed_qa_section_9.dart';
+import 'gen_ed_qa/gen_ed_qa_section_10.dart';
+import 'prof_ed_qa/prof_ed_qa_section_1.dart';
+import 'prof_ed_qa/prof_ed_qa_section_2.dart';
+import 'prof_ed_qa/prof_ed_qa_section_3.dart';
+import 'prof_ed_qa/prof_ed_qa_section_4.dart';
+import 'prof_ed_qa/prof_ed_qa_section_5.dart';
+import 'prof_ed_qa/prof_ed_qa_section_6.dart';
+import 'prof_ed_qa/prof_ed_qa_section_7.dart';
+import 'prof_ed_qa/prof_ed_qa_section_8.dart';
+import 'prof_ed_qa/prof_ed_qa_section_9.dart';
+import 'prof_ed_qa/prof_ed_qa_section_10.dart';
 
 class QuestionsRepository {
   static List<Question> getQuestionsForSection(String subjectId, int sectionId) {
@@ -314,6 +333,29 @@ class QuestionsRepository {
     } else if (subjectId == 'gen_ed_qa') {
       switch (sectionId) {
         case 1: return List<Question>.from(genEdQaSection1Questions);
+        case 2: return List<Question>.from(genEdQaSection2Questions);
+        case 3: return List<Question>.from(genEdQaSection3Questions);
+        case 4: return List<Question>.from(genEdQaSection4Questions);
+        case 5: return List<Question>.from(genEdQaSection5Questions);
+        case 6: return List<Question>.from(genEdQaSection6Questions);
+        case 7: return List<Question>.from(genEdQaSection7Questions);
+        case 8: return List<Question>.from(genEdQaSection8Questions);
+        case 9: return List<Question>.from(genEdQaSection9Questions);
+        case 10: return List<Question>.from(genEdQaSection10Questions);
+        default: return [];
+      }
+    } else if (subjectId == 'prof_ed_qa') {
+      switch (sectionId) {
+        case 1: return List<Question>.from(profEdQaSection1Questions);
+        case 2: return List<Question>.from(profEdQaSection2Questions);
+        case 3: return List<Question>.from(profEdQaSection3Questions);
+        case 4: return List<Question>.from(profEdQaSection4Questions);
+        case 5: return List<Question>.from(profEdQaSection5Questions);
+        case 6: return List<Question>.from(profEdQaSection6Questions);
+        case 7: return List<Question>.from(profEdQaSection7Questions);
+        case 8: return List<Question>.from(profEdQaSection8Questions);
+        case 9: return List<Question>.from(profEdQaSection9Questions);
+        case 10: return List<Question>.from(profEdQaSection10Questions);
         default: return [];
       }
     }
